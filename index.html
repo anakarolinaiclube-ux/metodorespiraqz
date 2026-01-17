@@ -1,0 +1,528 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Quiz: Seu Nível de Dependência e Liberdade</title>
+    
+    <!-- Importando Fontes (Mantidas) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- Ícones -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+
+    <style>
+        /* --- DESIGN SYSTEM ADAPTADO (MÉTODO RESPIRA) --- */
+        :root {
+            --primary-action: #0d9488; /* Turquesa Profundo (Ar/Saúde/Ação) */
+            --alert-red: #ef4444;      /* Vermelho para o Vício/Alerta */
+            --navy-deep: #111827;      /* Cinza Quase Preto (Seriedade) */
+            --bg-mint-light: #f0fdfa;  /* Fundo Menta Suave */
+            --text-dark: #134e4a;
+            --text-light: #64748b;
+            --success-green: #10b981;
+            
+            --font-serif: 'Playfair Display', serif;
+            --font-main: 'Poppins', sans-serif;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: var(--font-main);
+            color: var(--navy-deep);
+            /* Gradiente: Do cinza "fumaça" para o turquesa "ar limpo" */
+            background: linear-gradient(135deg, #2d3748 0%, #0f766e 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        /* --- CONTAINER DO QUIZ --- */
+        .quiz-card {
+            background: #ffffff;
+            width: 100%;
+            max-width: 650px;
+            border-radius: 12px;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.4);
+            padding: 40px;
+            position: relative;
+            overflow: hidden;
+            text-align: center;
+            border-top: 5px solid var(--primary-action);
+        }
+
+        /* Barra de Progresso */
+        .progress-container {
+            width: 100%;
+            height: 6px;
+            background: #e2e8f0;
+            margin-bottom: 30px;
+            border-radius: 3px;
+            overflow: hidden;
+        }
+        .progress-bar {
+            height: 100%;
+            background: var(--primary-action);
+            width: 0%;
+            transition: width 0.4s ease;
+        }
+
+        /* Tipografia Header */
+        h1 {
+            font-family: var(--font-main);
+            font-weight: 800;
+            font-size: 1.7rem;
+            margin-bottom: 15px;
+            color: var(--navy-deep);
+            line-height: 1.3;
+            text-transform: uppercase;
+        }
+        
+        p.intro {
+            font-size: 1.05rem;
+            color: var(--text-light);
+            margin-bottom: 35px;
+            line-height: 1.8;
+        }
+
+        /* ANIMAÇÕES DE TEXTO (Header) */
+        .word-despair {
+            display: inline-block;
+            font-weight: 600;
+            color: var(--alert-red);
+            text-decoration: line-through;
+            opacity: 0.8;
+        }
+
+        .word-power {
+            display: inline-block;
+            font-weight: 800;
+            color: var(--primary-action);
+            position: relative;
+            animation: breathe-pulse 3s infinite ease-in-out;
+        }
+
+        @keyframes breathe-pulse {
+            0% { transform: scale(1); text-shadow: 0 0 5px rgba(13, 148, 136, 0.1); }
+            50% { transform: scale(1.05); text-shadow: 0 0 15px rgba(13, 148, 136, 0.4); }
+            100% { transform: scale(1); text-shadow: 0 0 5px rgba(13, 148, 136, 0.1); }
+        }
+
+        /* PERGUNTAS */
+        .question-box {
+            display: none; 
+            animation: fadeIn 0.5s ease;
+        }
+        .question-box.active { display: block; }
+
+        .question-text {
+            font-weight: 700;
+            font-size: 1.2rem;
+            margin-bottom: 25px;
+            color: var(--navy-deep);
+        }
+
+        .options-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .option-btn {
+            background: #fff;
+            border: 1px solid #cbd5e1;
+            padding: 16px 20px;
+            border-radius: 8px;
+            text-align: left;
+            cursor: pointer;
+            font-family: var(--font-main);
+            font-size: 0.95rem;
+            color: var(--text-light);
+            transition: all 0.2s ease;
+            position: relative;
+            font-weight: 500;
+        }
+
+        .option-btn:hover {
+            border-color: var(--primary-action);
+            background-color: var(--bg-mint-light);
+            color: var(--text-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 10px rgba(15, 23, 42, 0.1);
+        }
+
+        /* --- TELA DE RESULTADO --- */
+        .result-box {
+            display: none;
+            animation: fadeIn 0.8s ease;
+            text-align: center;
+        }
+        
+        .result-icon {
+            font-size: 3rem;
+            color: var(--alert-red); /* Ícone de alerta pulmonar */
+            margin-bottom: 10px;
+        }
+
+        .result-title {
+            font-size: 1.6rem;
+            color: var(--navy-deep);
+            font-family: var(--font-main);
+            font-weight: 700;
+            margin-bottom: 20px;
+            border-bottom: 1px solid #e2e8f0;
+            padding-bottom: 15px;
+        }
+
+        .result-text {
+            text-align: left;
+            margin-bottom: 30px;
+            font-size: 0.95rem;
+            color: #334155;
+            line-height: 1.6;
+        }
+
+        /* --- NOVO GRÁFICO DE RESULTADO (Substituindo o Puzzle) --- */
+        .graph-container {
+            background: #f1f5f9;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 25px 0;
+            position: relative;
+        }
+
+        .graph-title {
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #64748b;
+            margin-bottom: 15px;
+            font-weight: 700;
+        }
+
+        .bar-wrapper {
+            display: flex;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .bar-label {
+            width: 30%;
+            font-size: 0.85rem;
+            text-align: right;
+            padding-right: 10px;
+            font-weight: 600;
+            color: #475569;
+        }
+
+        .bar-track {
+            flex-grow: 1;
+            background: #e2e8f0;
+            height: 20px;
+            border-radius: 10px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .bar-fill {
+            height: 100%;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            padding-right: 8px;
+            color: white;
+            font-size: 0.7rem;
+            font-weight: bold;
+            width: 0%; /* Começa em 0 para animar */
+        }
+
+        /* Animação da Barra "Força de Vontade" (Baixa) */
+        .fill-low {
+            background-color: #94a3b8;
+            animation: grow-low 2s ease-out forwards;
+        }
+        @keyframes grow-low { to { width: 5%; } }
+
+        /* Animação da Barra "Método Respira" (Alta) */
+        .fill-high {
+            background: linear-gradient(90deg, #14b8a6, #0d9488);
+            animation: grow-high 2.5s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+            position: relative;
+        }
+        @keyframes grow-high { to { width: 95%; } }
+        
+        /* Efeito de brilho na barra alta */
+        .fill-high::after {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; bottom: 0; right: 0;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+            transform: translateX(-100%);
+            animation: shimmer 2s infinite;
+        }
+        @keyframes shimmer {
+            100% { transform: translateX(100%); }
+        }
+
+        .graph-note {
+            font-size: 0.75rem;
+            color: var(--primary-action);
+            margin-top: 10px;
+            font-weight: 600;
+        }
+
+        /* --- Highlight Box --- */
+        .result-highlight {
+            background: var(--bg-mint-light);
+            padding: 15px;
+            border-left: 4px solid var(--primary-action);
+            margin: 20px 0;
+            font-weight: 600;
+            font-size: 0.95rem;
+            text-align: left;
+            color: var(--text-dark);
+        }
+
+        /* BOTÃO CTA */
+        .btn-cta {
+            background-color: var(--success-green);
+            color: white;
+            display: block;
+            width: 100%;
+            padding: 20px;
+            font-size: 1.1rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background 0.3s, transform 0.2s;
+            letter-spacing: 0.5px;
+            box-shadow: 0 4px 15px rgba(16, 185, 129, 0.4);
+            text-decoration: none;
+            margin-top: 25px;
+        }
+        .btn-cta:hover { 
+            background-color: #059669; 
+            transform: translateY(-3px); 
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @media (max-width: 480px) {
+            .quiz-card { padding: 30px 20px; }
+            h1 { font-size: 1.4rem; }
+            .option-btn { padding: 14px 15px; font-size: 0.9rem; }
+            .bar-label { width: 40%; font-size: 0.75rem; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="quiz-card">
+        
+        <!-- HEADER DO QUIZ -->
+        <div id="quiz-header">
+            <div style="font-size: 0.85rem; color: #64748b; letter-spacing: 1.5px; margin-bottom: 8px; font-weight: 600;">MAPEAMENTO PERSONALIZADO</div>
+            <h1>Você controla o cigarro ou ele controla você?</h1>
+            
+            <p class="intro">
+                Pare de fumar sem estresse.<br>
+                Livre-se do <span class="word-despair">hábito</span> e sinta-se no <span class="word-power">controle</span>.
+            </p>
+            
+            <div class="progress-container">
+                <div class="progress-bar" id="progressBar"></div>
+            </div>
+        </div>
+
+        <!-- PERGUNTAS (Renderizadas via JS) -->
+        <div id="quiz-content"></div>
+
+        <!-- RESULTADO (Oculto inicialmente) -->
+        <div id="quiz-result" class="result-box">
+            <div class="result-icon"><i class="fas fa-lungs-virus"></i></div>
+            <div class="result-title">Diagnóstico: O Vício Mora no Subconsciente.</div>
+            
+            <div class="result-text">
+                <p>Seus resultados indicam que o cigarro se tornou uma "muleta emocional" e que tentar parar usando apenas a força de vontade (o consciente) gera o conflito interno que leva à recaída.</p>
+                
+                <!-- GRÁFICO VISUAL (Substituindo o Puzzle) -->
+                <div class="graph-container">
+                    <div class="graph-title">Chance de Sucesso x Tempo</div>
+                    
+                    <div class="bar-wrapper">
+                        <div class="bar-label">Força de Vontade</div>
+                        <div class="bar-track">
+                            <div class="bar-fill fill-low">3%</div>
+                        </div>
+                    </div>
+                    
+                    <div class="bar-wrapper">
+                        <div class="bar-label" style="color:var(--primary-action)">Método Respira</div>
+                        <div class="bar-track">
+                            <div class="bar-fill fill-high">93%</div>
+                        </div>
+                    </div>
+                    
+                    <div class="graph-note"><i class="fas fa-clock"></i> Recuperação neural em apenas 21 dias</div>
+                </div>
+
+                <p>O <strong>Método Respira</strong> utiliza hipnoterapia clínica para acessar a raiz do vício no seu subconsciente. O gatilho da vontade de fumar é desligado antes mesmo que ele aconteça.</p>
+                
+                <div class="result-highlight">
+                    Imagine acordar daqui a 3 semanas, sentir o cheiro de café e não ter NENHUMA vontade de fumar. É isso que acontece quando sua mente é reprogramada.
+                </div>
+
+                <p>O processo é muito mais rápido do que você imagina. Você não precisa sofrer para parar.</p>
+            </div>
+
+            <a href="https://metodorespira.vercel.app/" class="btn-cta">QUERO REPROGRAMAR MINHA MENTE AGORA <i class="fas fa-arrow-right"></i></a>
+        </div>
+
+    </div>
+
+    <script>
+        const questions = [
+            {
+                question: "1. Quanto tempo após acordar você acende o primeiro cigarro?",
+                options: [
+                    "Nos primeiros 30 minutos. É quase automático.",
+                    "Após o café da manhã, para 'começar o dia'.",
+                    "Só fumo quando saio de casa ou chego no trabalho.",
+                    "Não tenho horário fixo, depende do meu nível de estresse."
+                ]
+            },
+            {
+                question: "2. Qual o principal motivo que te faz acender um cigarro hoje?",
+                options: [
+                    "Alívio imediato da ansiedade ou irritação.",
+                    "Tédio. Fumo para preencher o tempo vazio.",
+                    "Hábito social. Fumo mais quando bebo ou estou com amigos.",
+                    "Recompensa. 'Eu mereço' depois de uma tarefa difícil."
+                ]
+            },
+            {
+                question: "3. Quantas vezes você já tentou parar sério no passado?",
+                options: [
+                    "Nunca tentei de verdade, tenho medo de não conseguir.",
+                    "Uma ou duas vezes, mas voltei em menos de uma semana.",
+                    "Várias vezes. Já usei adesivos e chicletes, mas nada funcionou.",
+                    "Já parei por um bom tempo, mas uma crise emocional me fez voltar."
+                ]
+            },
+            {
+                question: "4. O que você sente logo após fumar o cigarro?",
+                options: [
+                    "Alívio momentâneo, mas logo vem a culpa.",
+                    "Normal. Fumo no automático e nem percebo.",
+                    "Cansaço. Sinto meu fôlego curto e pigarro.",
+                    "Frustração. Sinto que sou escravo(a) desse bastão branco."
+                ]
+            },
+            {
+                question: "5. O que mais te assusta na ideia de parar de fumar?",
+                options: [
+                    "O ganho de peso e a ansiedade incontrolável.",
+                    "Não saber o que fazer com as mãos ou nos momentos de tédio.",
+                    "Perder minha 'válvula de escape' para o estresse.",
+                    "Ficar irritado(a) e descontar nas pessoas que amo."
+                ]
+            },
+            {
+                question: "6. Se existisse um botão que apagasse o vício da sua mente hoje, você apertaria?",
+                options: [
+                    "Imediatamente. Não aguento mais gastar dinheiro e saúde.",
+                    "Sim, mas tenho dúvida se funcionaria comigo.",
+                    "Tenho medo de ficar 'sem graça' ou perder minha identidade.",
+                    "Não sei, o cigarro é meu único companheiro às vezes."
+                ]
+            }
+        ];
+
+        let currentQuestionIndex = 0;
+        const quizContent = document.getElementById('quiz-content');
+        const progressBar = document.getElementById('progressBar');
+        const quizHeader = document.getElementById('quiz-header');
+        const quizResult = document.getElementById('quiz-result');
+
+        // Inicializa o Quiz
+        function loadQuestion() {
+            // Atualiza barra de progresso
+            const progress = ((currentQuestionIndex) / questions.length) * 100;
+            progressBar.style.width = `${progress}%`;
+
+            // Limpa conteúdo anterior
+            quizContent.innerHTML = '';
+
+            const q = questions[currentQuestionIndex];
+            
+            // Cria container da pergunta
+            const qBox = document.createElement('div');
+            qBox.className = 'question-box active';
+
+            // Título da pergunta
+            const qTitle = document.createElement('div');
+            qTitle.className = 'question-text';
+            qTitle.innerText = q.question;
+            qBox.appendChild(qTitle);
+
+            // Container das opções
+            const optionsDiv = document.createElement('div');
+            optionsDiv.className = 'options-grid';
+
+            // Cria botões
+            q.options.forEach(opt => {
+                const btn = document.createElement('button');
+                btn.className = 'option-btn';
+                btn.innerText = opt;
+                btn.onclick = () => nextQuestion();
+                optionsDiv.appendChild(btn);
+            });
+
+            qBox.appendChild(optionsDiv);
+            quizContent.appendChild(qBox);
+        }
+
+        function nextQuestion() {
+            currentQuestionIndex++;
+
+            if (currentQuestionIndex < questions.length) {
+                // Pequeno delay para efeito visual
+                setTimeout(() => {
+                    loadQuestion();
+                }, 200);
+            } else {
+                // Fim do quiz
+                progressBar.style.width = '100%';
+                setTimeout(() => {
+                    showResult();
+                }, 300);
+            }
+        }
+
+        function showResult() {
+            // Oculta header e conteúdo das perguntas
+            quizHeader.style.display = 'none';
+            quizContent.style.display = 'none';
+            
+            // Mostra resultado
+            quizResult.style.display = 'block';
+        }
+
+        // Carrega primeira pergunta
+        loadQuestion();
+
+    </script>
+
+</body>
+</html>
